@@ -27,7 +27,6 @@ services:
       - "9000"
     depends_on:
       - mysql
-      - redis
     networks:
       - network-todo-list
   mysql:
