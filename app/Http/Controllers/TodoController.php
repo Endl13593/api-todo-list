@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TodoStoreRequest;
+use App\Http\Requests\TodoTaskStoreRequest;
 use App\Http\Requests\TodoUpdateRequest;
 use App\Http\Resources\TodoResource;
+use App\Http\Resources\TodoTaskResource;
 use App\Models\Todo;
-use Illuminate\Http\Request;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class TodoController extends Controller
@@ -25,6 +27,19 @@ class TodoController extends Controller
     }
 
     /**
+     * @param Todo $todo
+     * @return TodoResource
+     * @throws AuthorizationException
+     */
+    public function show(Todo $todo): TodoResource
+    {
+        $this->authorize('view', $todo);
+
+        $todo->load('tasks');
+        return new TodoResource($todo);
+    }
+
+    /**
      * @param TodoStoreRequest $request
      * @return TodoResource
      */
@@ -36,8 +51,16 @@ class TodoController extends Controller
         return new TodoResource($todos);
     }
 
-    public function update(TodoUpdateRequest $request, Todo $todo)
+    /**
+     * @param TodoUpdateRequest $request
+     * @param Todo $todo
+     * @return TodoResource
+     * @throws AuthorizationException
+     */
+    public function update(TodoUpdateRequest $request, Todo $todo): TodoResource
     {
+        $this->authorize('update', $todo);
+
         $input = $request->validated();
 
         $todo->fill($input);
@@ -46,8 +69,31 @@ class TodoController extends Controller
         return new TodoResource($todo->fresh());
     }
 
+    /**
+     * @param Todo $todo
+     * @throws AuthorizationException
+     * @throws \Exception
+     */
     public function destroy(Todo $todo)
     {
+        $this->authorize('destroy', $todo);
+
         $todo->delete();
+    }
+
+    /**
+     * @param TodoTaskStoreRequest $request
+     * @param Todo $todo
+     * @return TodoTaskResource
+     * @throws AuthorizationException
+     */
+    public function addTask(TodoTaskStoreRequest $request, Todo $todo): TodoTaskResource
+    {
+        $this->authorize('addTask', $todo);
+
+        $input = $request->validated();
+        $todoTask = $todo->tasks()->create($input);
+
+        return new TodoTaskResource($todoTask);
     }
 }

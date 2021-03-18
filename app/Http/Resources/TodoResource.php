@@ -15,10 +15,11 @@ class TodoResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id'         => (int) $this->id,
+            'id'         => (integer) $this->id,
             'label'      => (string) $this->label,
             'created_at' => (string) $this->created_at,
-            'updated_at' => (string) $this->updated_at
+            'updated_at' => (string) $this->updated_at,
+            'tasks' => TodoTaskResource::collection($this->whenLoaded('tasks'))
         ];
     }
 }
