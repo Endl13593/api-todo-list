@@ -34,4 +34,9 @@ class MeController extends Controller
 
         return new UserResource($user);
     }
+
+    public function logout()
+    {
+        auth()->logout();
+    }
 }
