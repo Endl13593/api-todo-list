@@ -21,6 +21,7 @@ services:
     build: docker/php-fpm
     container_name: php-todo-list
     entrypoint: dockerize -wait tcp://${DB_HOST}:3306 -timeout 60s /entrypoint.sh
+    user: "1000:www-data"
     volumes:
       - ./:/var/www/html
     expose:
